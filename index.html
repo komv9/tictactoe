@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    body {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+      margin: 0;
+      background: linear-gradient(to bottom right, #4facfe, #00f2fe);
+    }
+
+    #game-container {
+      background-color: #f5f5f5;
+      padding: 20px;
+      border-radius: 10px;
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+      overflow: hidden;
+    }
+
+    #board {
+      display: grid;
+      grid-template-columns: repeat(3, 100px);
+      gap: 5px;
+      justify-content: center;
+      align-content: center;
+    }
+
+    .cell {
+      width: 100px;
+      height: 100px;
+      background-color: #fff;
+      font-size: 2em;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+    }
+
+    .cell:hover {
+      background-color: #f0f0f0;
+    }
+
+    .message {
+      text-align: center;
+      font-size: 1.5em;
+      margin-top: 20px;
+    }
+
+    #new-game {
+      display: block;
+      margin: 20px auto;
+      padding: 10px 20px;
+      font-size: 1.2em;
+      cursor: pointer;
+      background-color: #4facfe;
+      color: #fff;
+      border: none;
+      border-radius: 5px;
+      transition: background-color 0.3s ease;
+    }
+
+    #new-game:hover {
+      background-color: #00f2fe;
+    }
+  </style>
+  <title>Tic Tac Toe</title>
+</head>
+<body>
+  <div id="game-container">
+    <div id="board"></div>
+    <div id="message" class="message"></div>
+    <button id="new-game" onclick="startNewGame()">New Game</button>
+  </div>
+
+  <script>
+    document.addEventListener("DOMContentLoaded", function () {
+      const board = document.getElementById("board");
+      const message = document.getElementById("message");
+      const newGameButton = document.getElementById("new-game");
+      const cells = [];
+      let currentPlayer = "X";
+      let gameActive = true;
+
+      // Create the board
+      for (let i = 0; i < 3; i++) {
+        for (let j = 0; j < 3; j++) {
+          const cell = document.createElement("div");
+          cell.classList.add("cell");
+          cell.dataset.row = i;
+          cell.dataset.col = j;
+          cell.addEventListener("click", cellClick);
+          board.appendChild(cell);
+          cells.push(cell);
+        }
+      }
+
+      // Handle cell click
+      function cellClick() {
+        if (!gameActive || this.textContent !== "") return;
+
+        this.textContent = currentPlayer;
+        if (checkWinner()) {
+          endGame(`Player ${currentPlayer} wins!`);
+        } else if (isBoardFull()) {
+          endGame("It's a draw!");
+        } else {
+          currentPlayer = currentPlayer === "X" ? "O" : "X";
+          message.textContent = `Player ${currentPlayer}'s turn`;
+        }
+      }
+
+      // Check for a winner
+      function checkWinner() {
+        const winningCombos = [
+          [0, 1, 2],
+          [3, 4, 5],
+          [6, 7, 8],
+          [0, 3, 6],
+          [1, 4, 7],
+          [2, 5, 8],
+          [0, 4, 8],
+          [2, 4, 6],
+        ];
+
+        for (const combo of winningCombos) {
+          const [a, b, c] = combo;
+          if (
+            cells[a].textContent &&
+            cells[a].textContent === cells[b].textContent &&
+            cells[a].textContent === cells[c].textContent
+          ) {
+            highlightWinnerCells(combo);
+            return true;
+          }
+        }
+
+        return false;
+      }
+
+      // Highlight the winning cells
+      function highlightWinnerCells(cellsToHighlight) {
+        cellsToHighlight.forEach((index) => {
+          cells[index].style.backgroundColor = "#7eff8c";
+        });
+      }
+
+      // Check if the board is full
+      function isBoardFull() {
+        return cells.every((cell) => cell.textContent !== "");
+      }
+
+      // End the game and display the result
+      function endGame(result) {
+        gameActive = false;
+        message.textContent = result;
+        newGameButton.style.display = "block";
+      }
+    });
+
+    // Function to start a new game
+    function startNewGame() {
+      const cells = document.querySelectorAll(".cell");
+      cells.forEach((cell) => {
+        cell.textContent = "";
+        cell.style.backgroundColor = "#fff";
+      });
+
+      const message = document.getElementById("message");
+      message.textContent = "Player X's turn";
+      const newGameButton = document.getElementById("new-game");
+      newGameButton.style.display = "none";
+
+      currentPlayer = "X";
+      gameActive = true;
+    }
+  </script>
+</body>
+</html>
